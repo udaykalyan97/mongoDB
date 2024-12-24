@@ -1,69 +1,16 @@
-import mongoose from "mongoose";
-import User from "./User.js";
+import express from "express"; 
+import { userRoutes } from "./Routes/user.routes.js"; 
+import { connectToDatabase } from "./Controller/DB.controller.js"; 
 
-mongoose.connect("mongodb://localhost:27017");
+const app = express();                                      // Start the server
 
-const db = mongoose.connection;
+connectToDatabase();                                        // Call the database connection function
 
-db.on("open", () => {
-    console.log("Connection successful");
+app.use(express.json());                                    // Middleware for parsing JSON requests
+
+userRoutes(app);                                            // Attach user routes
+
+const PORT = 3100;
+app.listen(PORT, () => {                                    // Listen on a Port
+    console.log(`Server is running on port ${PORT}`);
 });
-
-db.on("error", (err) => {
-    console.log("Connection not successful", err);
-});
-
-const newUser = new User({
-    name: "Anshika",
-    age: 26,
-    isAdult: true,
-    hobbies: ["teaching"],
-});
-
-newUser.save().then((data) => {
-    console.log(data);
-})
- 
-
-const user2 = await User.create({
-    name: "Ankit",
-    age: 23,
-    isAdult: true,
-    hobbies: ["Reading"],
-});
-
-user2.save().then((data) => {
-    console.log(data);
-});
-
-const users = await User.find();
-console.log(users);
-
-const particularUser = await User.findOne({name: "Ankit"});
-console.log("User with name Ankit", particularUser);
-
-const user3 = await User.create({
-    name: "Rohit",
-    age: 17,
-    isAdult: false,
-    hobbies: ["Playing Badminton"],
-});
-
-user3.name = "Rahul";
-
-const youngUser = await user3.save();
-
-console.log(youngUser);
-
-const deletedUser = await User.deleteOne({name: "Anshika"});
-
-const deleteAllUsers = await User.deleteMany({name: "Anshika"});
-
-console.log(deletedUser);
-
-const user4 = await User.create({
-    name: "ABC",
-    age: 12,
-});
-
-await user4.save();
